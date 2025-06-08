@@ -1,0 +1,5 @@
+tensorflow
+pillow
+numpy
+fastapi[standard]
+requests
