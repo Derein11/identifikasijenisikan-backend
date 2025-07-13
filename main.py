@@ -7,6 +7,7 @@ import io
 from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 app = FastAPI()
 
@@ -22,8 +23,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-HuggingFace_URL = "https://huggingface.co/Derein/identifikasi-jenis-ikan/resolve/main/model.keras"
-model_path = "model.keras"
+HuggingFace_URL = "https://huggingface.co/Derein/mobilenetv2_model/resolve/main/mobilenetv2_model.keras"
+model_path = "mobilenetv2_model.keras"
 # Download model jika belum ada dari HuggingFace
 if not os.path.exists(model_path):
     print("Model tidak ditemukan, mengunduh dari HuggingFace...")
@@ -37,10 +38,10 @@ else:
 model = tf.keras.models.load_model(model_path)  # type: ignore
 
 def preprocess_image(file_bytes):
-    image = Image.open(io.BytesIO(file_bytes)).resize((224,224))
-    img_array = np.array(image)  # Convert PIL Image to NumPy array
-    # img_array = img_array / 255.0 # Normalisasi Gambar (uncomment if needed)
-    return np.expand_dims(img_array, axis=0) # Dimensi batch
+    image = Image.open(io.BytesIO(file_bytes)).convert("RGB").resize((224, 224))
+    img_array = np.array(image)
+    img_array = preprocess_input(img_array)  # Gunakan preprocessing resmi dari ResNet50
+    return np.expand_dims(img_array, axis=0)
 
 @app.get("/")
 async def root():
@@ -49,13 +50,11 @@ async def root():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
-        selected_classes = ['Catfish','Tilapia','Gourami','Snakehead','Pangasius','Silver Carp','Big Head Carp','Grass Carp','Indian Carp','Silver Barb','Perch','Bangus', 'Freshwater Eel','Climbing Perch']
+        # Definisi 11 kelas ikan yang akan diprediksi
+        selected_classes = ['Catfish','Tilapia','Snakehead','Pangasius','Climbing Perch','Grass Carp','Silver Carp','Big Head Carp','Freshwater Eel','Indian Carp','Silver Barb']
         content = await file.read()
         if not content:
             raise ValueError("Gambar kosong atau tidak berhasil dibaca!")
-        MAX_FILE_SIZE = 5 * 1024 *1024 # Maksimal ukuran file 5 MB
-        if len(content) > MAX_FILE_SIZE:
-            raise ValueError("Ukuran file terlalu besar! Maksimal 5 MB.")
         input_tensor = preprocess_image(content) # Pra-proses gambar
         prediction = model.predict(input_tensor) # Prediksi gambar menggunakan model
         prediction = prediction.tolist() # Mengubah array menjadi list

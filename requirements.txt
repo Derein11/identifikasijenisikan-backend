@@ -3,3 +3,4 @@ pillow
 numpy
 fastapi[standard]
 requests
+keras
