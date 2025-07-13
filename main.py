@@ -13,14 +13,16 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "https://identifikasijenisikan-frontend.vercel.app/",
+
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["GET","POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 HuggingFace_URL = "https://huggingface.co/Derein/mobilenetv2_model/resolve/main/mobilenetv2_model.keras"
