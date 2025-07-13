@@ -13,7 +13,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://identifikasijenisikan-frontend.vercel.app/",
+    "https://identifikasijenisikan-frontend.vercel.app",
 
 ]
 
