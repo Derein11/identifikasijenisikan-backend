@@ -7,14 +7,13 @@ import io
 from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input # type: ignore
 
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",
     "https://identifikasijenisikan-frontend.vercel.app",
-
 ]
 
 app.add_middleware(
